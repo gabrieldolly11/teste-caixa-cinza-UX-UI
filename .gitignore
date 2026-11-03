@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+*.local.*
+*postman_environment.json
+!postman/Ambiente_Exemplo.postman_environment.json
+*postman_test_run.json
+~$*

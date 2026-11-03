@@ -1,0 +1,445 @@
+{
+  "info": {
+    "name": "Autenticação Supabase — Gabriel 251157",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Cinco cenários para execução pessoal no Postman Desktop. Resultados ainda pendentes. Authorization é removido para chave publishable e configurado apenas para anon JWT."
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "CT-001 — Login válido",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const key = pm.environment.get('api_key') || '';",
+              "const base = pm.environment.get('base_url') || '';",
+              "if (!new RegExp('^https:/' + '/[a-z0-9-]+[.]supabase[.]co$').test(base)) throw new Error('Configure base_url HTTPS do seu projeto, sem barra final.');",
+              "if (key.startsWith('sb_publishable_')) {",
+              " pm.request.headers.remove('Authorization');",
+              "} else {",
+              " let payload; try { payload = JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch (_) { throw new Error('Use chave pública publishable ou anon JWT válida.'); }",
+              " if(payload.role !== 'anon') throw new Error('Use somente anon JWT público. Chave administrativa proibida.');",
+              " pm.request.headers.upsert({key:'Authorization',value:'Bearer '+key});",
+              "}",
+              "// Serialização evita JSON inválido se a senha contiver aspas ou barras.",
+              "const template = JSON.parse(pm.request.body.raw);",
+              "const data = Object.fromEntries(Object.entries(template).map(([k,v]) => [k, pm.variables.replaceIn(v)]));",
+              "if (Object.values(data).some(v => /{{.+}}/.test(v))) throw new Error('Variável ausente no Environment.');",
+              "pm.request.body.update(JSON.stringify(data));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let json; pm.test('Resposta JSON objeto', () => { json = pm.response.json(); pm.expect(json).to.be.an('object'); });",
+              "pm.test('HTTP 200', () => pm.expect(pm.response.code).to.eql(200));",
+              "pm.test('Access token emitido', () => { pm.expect(json).to.have.property('access_token'); pm.expect(json.access_token).to.be.a('string').and.not.empty; });",
+              "// Conferir manualmente a causa do erro e registrar HTTP/JSON reais. Não salvar tokens no console ou ambiente."
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "Somente anon JWT. Removido automaticamente para publishable pelo script."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "Usuário de teste e senha corretos. Esperado: HTTP 200 e access_token não vazio. Confirmar pré-condições antes de Send. Os erros dos CT-002, 003 e 005 podem ter a mesma mensagem por proteção contra enumeração de usuários."
+      }
+    },
+    {
+      "name": "CT-002 — Senha incorreta",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const key = pm.environment.get('api_key') || '';",
+              "const base = pm.environment.get('base_url') || '';",
+              "if (!new RegExp('^https:/' + '/[a-z0-9-]+[.]supabase[.]co$').test(base)) throw new Error('Configure base_url HTTPS do seu projeto, sem barra final.');",
+              "if (key.startsWith('sb_publishable_')) {",
+              " pm.request.headers.remove('Authorization');",
+              "} else {",
+              " let payload; try { payload = JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch (_) { throw new Error('Use chave pública publishable ou anon JWT válida.'); }",
+              " if(payload.role !== 'anon') throw new Error('Use somente anon JWT público. Chave administrativa proibida.');",
+              " pm.request.headers.upsert({key:'Authorization',value:'Bearer '+key});",
+              "}",
+              "// Serialização evita JSON inválido se a senha contiver aspas ou barras.",
+              "const template = JSON.parse(pm.request.body.raw);",
+              "const data = Object.fromEntries(Object.entries(template).map(([k,v]) => [k, pm.variables.replaceIn(v)]));",
+              "if (Object.values(data).some(v => /{{.+}}/.test(v))) throw new Error('Variável ausente no Environment.');",
+              "pm.request.body.update(JSON.stringify(data));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let json; pm.test('Resposta JSON objeto', () => { json = pm.response.json(); pm.expect(json).to.be.an('object'); });",
+              "pm.test('HTTP de rejeição por entrada/autenticação', () => pm.expect(pm.response.code).to.be.oneOf([400,401,403,422]));",
+              "pm.test('Sem access token', () => pm.expect(json || {}).not.to.have.property('access_token'));",
+              "pm.test('Mensagem de erro presente', () => { const msg = json && (json.msg || json.message || json.error_description || json.error); pm.expect(msg).to.be.a('string').and.not.empty; });",
+              "pm.test('Sem erro de infraestrutura ou configuração conhecido', () => { const code = String(json && (json.code || json.error_code) || ''); pm.expect(code).not.to.match(/rate_limit|captcha|api_key|email_not_confirmed|unexpected_failure/i); });",
+              "// Conferir manualmente a causa do erro e registrar HTTP/JSON reais. Não salvar tokens no console ou ambiente."
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "Somente anon JWT. Removido automaticamente para publishable pelo script."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"SenhaIncorreta_Aula11!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail existente e senha artificial diferente da correta. Esperado: Erro de autenticação, sem token. Confirmar pré-condições antes de Send. Os erros dos CT-002, 003 e 005 podem ter a mesma mensagem por proteção contra enumeração de usuários."
+      }
+    },
+    {
+      "name": "CT-003 — Usuário inexistente",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const key = pm.environment.get('api_key') || '';",
+              "const base = pm.environment.get('base_url') || '';",
+              "if (!new RegExp('^https:/' + '/[a-z0-9-]+[.]supabase[.]co$').test(base)) throw new Error('Configure base_url HTTPS do seu projeto, sem barra final.');",
+              "if (key.startsWith('sb_publishable_')) {",
+              " pm.request.headers.remove('Authorization');",
+              "} else {",
+              " let payload; try { payload = JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch (_) { throw new Error('Use chave pública publishable ou anon JWT válida.'); }",
+              " if(payload.role !== 'anon') throw new Error('Use somente anon JWT público. Chave administrativa proibida.');",
+              " pm.request.headers.upsert({key:'Authorization',value:'Bearer '+key});",
+              "}",
+              "// Serialização evita JSON inválido se a senha contiver aspas ou barras.",
+              "const template = JSON.parse(pm.request.body.raw);",
+              "const data = Object.fromEntries(Object.entries(template).map(([k,v]) => [k, pm.variables.replaceIn(v)]));",
+              "if (Object.values(data).some(v => /{{.+}}/.test(v))) throw new Error('Variável ausente no Environment.');",
+              "pm.request.body.update(JSON.stringify(data));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let json; pm.test('Resposta JSON objeto', () => { json = pm.response.json(); pm.expect(json).to.be.an('object'); });",
+              "pm.test('HTTP de rejeição por entrada/autenticação', () => pm.expect(pm.response.code).to.be.oneOf([400,401,403,422]));",
+              "pm.test('Sem access token', () => pm.expect(json || {}).not.to.have.property('access_token'));",
+              "pm.test('Mensagem de erro presente', () => { const msg = json && (json.msg || json.message || json.error_description || json.error); pm.expect(msg).to.be.a('string').and.not.empty; });",
+              "pm.test('Sem erro de infraestrutura ou configuração conhecido', () => { const code = String(json && (json.code || json.error_code) || ''); pm.expect(code).not.to.match(/rate_limit|captcha|api_key|email_not_confirmed|unexpected_failure/i); });",
+              "// Conferir manualmente a causa do erro e registrar HTTP/JSON reais. Não salvar tokens no console ou ambiente."
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "Somente anon JWT. Removido automaticamente para publishable pelo script."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"nao-cadastrado-251157@example.com\",\n  \"password\": \"SenhaArtificial_Aula11!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail sintaticamente válido, confirmado como não cadastrado. Esperado: Acesso negado, sem token. Confirmar pré-condições antes de Send. Os erros dos CT-002, 003 e 005 podem ter a mesma mensagem por proteção contra enumeração de usuários."
+      }
+    },
+    {
+      "name": "CT-004 — Campos vazios",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const key = pm.environment.get('api_key') || '';",
+              "const base = pm.environment.get('base_url') || '';",
+              "if (!new RegExp('^https:/' + '/[a-z0-9-]+[.]supabase[.]co$').test(base)) throw new Error('Configure base_url HTTPS do seu projeto, sem barra final.');",
+              "if (key.startsWith('sb_publishable_')) {",
+              " pm.request.headers.remove('Authorization');",
+              "} else {",
+              " let payload; try { payload = JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch (_) { throw new Error('Use chave pública publishable ou anon JWT válida.'); }",
+              " if(payload.role !== 'anon') throw new Error('Use somente anon JWT público. Chave administrativa proibida.');",
+              " pm.request.headers.upsert({key:'Authorization',value:'Bearer '+key});",
+              "}",
+              "// Serialização evita JSON inválido se a senha contiver aspas ou barras.",
+              "const template = JSON.parse(pm.request.body.raw);",
+              "const data = Object.fromEntries(Object.entries(template).map(([k,v]) => [k, pm.variables.replaceIn(v)]));",
+              "if (Object.values(data).some(v => /{{.+}}/.test(v))) throw new Error('Variável ausente no Environment.');",
+              "pm.request.body.update(JSON.stringify(data));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let json; pm.test('Resposta JSON objeto', () => { json = pm.response.json(); pm.expect(json).to.be.an('object'); });",
+              "pm.test('HTTP de rejeição por entrada/autenticação', () => pm.expect(pm.response.code).to.be.oneOf([400,401,403,422]));",
+              "pm.test('Sem access token', () => pm.expect(json || {}).not.to.have.property('access_token'));",
+              "pm.test('Mensagem de erro presente', () => { const msg = json && (json.msg || json.message || json.error_description || json.error); pm.expect(msg).to.be.a('string').and.not.empty; });",
+              "pm.test('Sem erro de infraestrutura ou configuração conhecido', () => { const code = String(json && (json.code || json.error_code) || ''); pm.expect(code).not.to.match(/rate_limit|captcha|api_key|email_not_confirmed|unexpected_failure/i); });",
+              "// Conferir manualmente a causa do erro e registrar HTTP/JSON reais. Não salvar tokens no console ou ambiente."
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "Somente anon JWT. Removido automaticamente para publishable pelo script."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "email=\"\", password=\"\". Esperado: Erro de validação/autenticação, sem token. Confirmar pré-condições antes de Send. Os erros dos CT-002, 003 e 005 podem ter a mesma mensagem por proteção contra enumeração de usuários."
+      }
+    },
+    {
+      "name": "CT-005 — Credenciais inválidas",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const key = pm.environment.get('api_key') || '';",
+              "const base = pm.environment.get('base_url') || '';",
+              "if (!new RegExp('^https:/' + '/[a-z0-9-]+[.]supabase[.]co$').test(base)) throw new Error('Configure base_url HTTPS do seu projeto, sem barra final.');",
+              "if (key.startsWith('sb_publishable_')) {",
+              " pm.request.headers.remove('Authorization');",
+              "} else {",
+              " let payload; try { payload = JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch (_) { throw new Error('Use chave pública publishable ou anon JWT válida.'); }",
+              " if(payload.role !== 'anon') throw new Error('Use somente anon JWT público. Chave administrativa proibida.');",
+              " pm.request.headers.upsert({key:'Authorization',value:'Bearer '+key});",
+              "}",
+              "// Serialização evita JSON inválido se a senha contiver aspas ou barras.",
+              "const template = JSON.parse(pm.request.body.raw);",
+              "const data = Object.fromEntries(Object.entries(template).map(([k,v]) => [k, pm.variables.replaceIn(v)]));",
+              "if (Object.values(data).some(v => /{{.+}}/.test(v))) throw new Error('Variável ausente no Environment.');",
+              "pm.request.body.update(JSON.stringify(data));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let json; pm.test('Resposta JSON objeto', () => { json = pm.response.json(); pm.expect(json).to.be.an('object'); });",
+              "pm.test('HTTP de rejeição por entrada/autenticação', () => pm.expect(pm.response.code).to.be.oneOf([400,401,403,422]));",
+              "pm.test('Sem access token', () => pm.expect(json || {}).not.to.have.property('access_token'));",
+              "pm.test('Mensagem de erro presente', () => { const msg = json && (json.msg || json.message || json.error_description || json.error); pm.expect(msg).to.be.a('string').and.not.empty; });",
+              "pm.test('Sem erro de infraestrutura ou configuração conhecido', () => { const code = String(json && (json.code || json.error_code) || ''); pm.expect(code).not.to.match(/rate_limit|captcha|api_key|email_not_confirmed|unexpected_failure/i); });",
+              "// Conferir manualmente a causa do erro e registrar HTTP/JSON reais. Não salvar tokens no console ou ambiente."
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "Somente anon JWT. Removido automaticamente para publishable pelo script."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"email-invalido\",\n  \"password\": \"SenhaArtificial_Aula11!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "email=\"email-invalido\" e senha artificial. Esperado: Erro por credenciais inválidas, sem token. Confirmar pré-condições antes de Send. Os erros dos CT-002, 003 e 005 podem ter a mesma mensagem por proteção contra enumeração de usuários."
+      }
+    }
+  ]
+}
