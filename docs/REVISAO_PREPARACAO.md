@@ -1,8 +1,26 @@
-> Atualização final em 06/11/2026: CT01–CT05 foram enviados pessoalmente pelo aluno e aprovados (24 asserções). Os trechos abaixo registram o roteiro/histórico de preparação. O estado atual está no README e em CHECKLIST.md.
+# Histórico da revisão de preparação
 
-# Conferência da versão revisada
+> Documento histórico: as verificações abaixo pertencem à preparação, anterior aos envios no Postman. Os estados “pendente”, “sem capturas” e os totais 0/0/0/5 descrevem exclusivamente aquela fase.
 
-Revisão técnica inicial da preparação em 05/11/2026. As seções abaixo registram a situação antes da inspeção do Supabase. Posteriormente, o aluno entrou na conta e autorizou a conferência assistida: projeto existente Healthy, Email habilitado, Confirm email habilitado, usuário confirmado e chaves públicas disponíveis foram verificados. As seis capturas reais estão em prints/ e incorporadas no README. Nenhum login por senha foi executado nesta conferência. A planilha permanece com os cinco casos pendentes.
+## Situação final em 06/11/2026
+
+| Caso | Data da execução | HTTP observado | Asserções aprovadas | Status |
+| --- | --- | --- | --- | --- |
+| CT01 | 05/11/2026 | 200 | 4/4 | Sucesso |
+| CT02 | 06/11/2026 | 400 | 5/5 | Sucesso |
+| CT03 | 06/11/2026 | 400 | 5/5 | Sucesso |
+| CT04 | 06/11/2026 | 400 | 5/5 | Sucesso |
+| CT05 | 06/11/2026 | 400 | 5/5 | Sucesso |
+
+Os cinco casos foram enviados individualmente no Postman Desktop. O registro final soma 24 asserções aprovadas; a aba Resumo contém cinco sucessos, zero falhas, zero bloqueados e zero pendentes. As capturas 01–18 (23 imagens) e a planilha preenchida estão na entrega. A publicação inicial foi concluída em 06/11/2026.
+
+No CT03, as capturas comprovam HTTP 400 com `invalid_credentials`, ausência de `access_token` e cinco asserções aprovadas. O endereço é gerado aleatoriamente com formato válido pelo pré-script. Não há, no conjunto disponível, evidência de consulta que comprove diretamente a ausência desse endereço em Authentication > Users.
+
+O estado final está no [README](../README.md), na [planilha](../planilha/Registro_Testes.xlsx) e nas [evidências](EVIDENCIAS.md). O roteiro abaixo permanece como registro das verificações e providências anteriores, sem pendências de execução atuais.
+
+## Registro anterior à execução
+
+Revisão técnica inicial da preparação em 05/11/2026. As seções abaixo registram a situação antes da inspeção do Supabase. Posteriormente, o aluno entrou na conta e autorizou a conferência assistida: projeto existente Healthy, Email habilitado, Confirm email habilitado, usuário confirmado e chaves públicas disponíveis foram verificados. As seis capturas reais estão em prints/ e incorporadas no README. Nenhum login por senha foi executado nesta conferência. Naquele momento, a planilha ainda continha os cinco casos pendentes; esse estado foi substituído pelos registros de execução de 05 e 06/11/2026.
 
 ## Base preservada
 
@@ -11,7 +29,7 @@ Revisão técnica inicial da preparação em 05/11/2026. As seções abaixo regi
 - Planilha preservada sem reexportação: abas, fórmulas, validação de status e formatação mantidas.
 - Coleção e Environment revisados preservados sem alterações.
 
-## Verificações
+## Verificações realizadas antes da execução
 
 | Item | Conferência | Situação da preparação |
 | --- | --- | --- |
@@ -26,7 +44,7 @@ Revisão técnica inicial da preparação em 05/11/2026. As seções abaixo regi
 | Visual | Duas abas renderizadas e inspecionadas | Legíveis |
 | Credenciais | Environment contém somente placeholders; não há capturas reais no pacote | Sem credenciais reais identificadas nos arquivos inspecionados |
 
-Os testes locais exercitam a lógica dos scripts com objetos auxiliares. Não são execução no Postman Desktop nem evidências acadêmicas do Supabase. A importação e o funcionamento no aplicativo do aluno ainda precisam ser confirmados. O resumo não incorpora automaticamente tentativas fora de F7:F11.
+Os testes locais exercitam a lógica dos scripts com objetos auxiliares. Não são execução no Postman Desktop nem evidências acadêmicas do Supabase. Naquela fase, a importação e o funcionamento no Postman Desktop ainda precisavam de confirmação; ambos foram confirmados na etapa prática posterior. O resumo não incorpora automaticamente tentativas fora de F7:F11.
 
 ## Ajustes pontuais
 
@@ -34,8 +52,8 @@ Os testes locais exercitam a lógica dos scripts com objetos auxiliares. Não s�
 2. README esclarece o alcance das fórmulas da aba Resumo e o registro de reexecuções.
 3. Guia detalha a criação do projeto, a importação dos dois JSON e as primeiras capturas, com referências oficiais.
 
-## Pendências reais
+## Pendências da fase de preparação — posteriormente concluídas
 
 Configuração pessoal do Supabase; configuração/importação no Postman Desktop; execução pessoal dos cinco casos; capturas 01–18; preenchimento dos resultados; identificação do aluno; conclusão baseada em evidências; revisão de privacidade das imagens; aprovação do aluno antes da publicação; GitHub público e acessível.
 
-Próxima ação do aluno: abrir o painel Supabase e criar ou acessar o projeto dedicado, conforme docs/GUIA_EXECUCAO.md. A criação só será considerada confirmada após retorno do aluno e conferência das evidências reais.
+Próxima ação prevista naquele momento: abrir o painel Supabase e criar ou acessar o projeto dedicado, conforme docs/GUIA_EXECUCAO.md. Naquele momento, a confirmação dependia do retorno do responsável e da conferência das evidências reais; essas confirmações ocorreram na continuação da atividade.

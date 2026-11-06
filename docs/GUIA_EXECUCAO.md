@@ -1,10 +1,10 @@
-> Atualização final em 06/11/2026: CT01–CT05 foram enviados pessoalmente pelo aluno e aprovados (24 asserções). Os trechos abaixo registram o roteiro/histórico de preparação. O estado atual está no README e em CHECKLIST.md.
+> Execução concluída em 05 e 06/11/2026: cinco casos aprovados e 24 asserções aprovadas. Este arquivo conserva o roteiro de reprodução e notas históricas. Os resultados estão no README e na planilha.
 
 # Guia de execução individual — Supabase e Postman
 
-> **Importante:** este guia prepara a execução; não afirma que os testes já ocorreram. Todos os cinco testes e capturas devem ser feitos pessoalmente pelo aluno no Postman Desktop.
+> **Uso do guia:** os passos abaixo orientam uma eventual reprodução. A execução documentada já foi concluída no Postman Desktop; não é necessário repeti-la para aplicar correções documentais.
 
-**Atualização da etapa Supabase:** em 05/11/2026, após o login do aluno, foi conferido o projeto já existente Gabriel - Testes Caixa Cinza. O ambiente está Healthy, Email e Confirm email estão habilitados e há um usuário confirmado. As capturas de configuração 01–06 foram feitas durante a inspeção assistida autorizada e estão descritas no README. Não repetir a criação do projeto ou do usuário. Atualização posterior: as credenciais foram verificadas em chamada auxiliar autorizada, e o Postman Desktop foi instalado, autenticado pelo aluno e configurado com workspace restrito, coleção e Environment. Não repetir essas etapas. CT01 está aberto, com o ambiente selecionado, aguardando o aluno clicar em Send. As variáveis JSON temporárias são preenchidas pelo pré-script durante o envio.
+**Atualização da etapa Supabase:** em 05/11/2026, após o login do aluno, foi conferido o projeto já existente Gabriel - Testes Caixa Cinza. O ambiente está Healthy, Email e Confirm email estão habilitados e há um usuário confirmado. As capturas de configuração 01–06 foram feitas durante a inspeção assistida autorizada e estão descritas no README. Não repetir a criação do projeto ou do usuário. Atualização posterior: as credenciais foram verificadas em chamada auxiliar autorizada, e o Postman Desktop foi instalado, autenticado pelo aluno e configurado com workspace restrito, coleção e Environment. Não repetir essas etapas. Na fase de preparação, CT01 ficou aberto com o ambiente selecionado, aguardando o envio. Esse envio foi realizado em 05/11/2026, seguido de CT02–CT05 em 06/11/2026. As variáveis JSON temporárias são preenchidas pelo pré-script durante o envio.
 
 ## Etapa A — Supabase
 1. Entre em [Supabase Dashboard](https://supabase.com/dashboard). Após entrar na sua conta, selecione uma organização existente e clique **New project**. Se ainda não houver organização, use **New organization**, crie uma organização pessoal no plano **Free** e depois clique **New project**. Preencha **Project name** com `teste-caixa-cinza`, defina a **Database password** somente na plataforma e guarde-a privadamente. Essa senha é do banco e não é a senha do usuário CT01. Em **Region**, escolha uma região próxima, por exemplo São Paulo se disponível. Confira o plano gratuito e clique **Create new project**. Aguarde a inicialização. Se a conta já possuir um projeto dedicado a esta atividade, abra esse projeto em vez de criar outro.
@@ -23,7 +23,7 @@
 7. Execute pessoalmente `CT02`, `CT03`, `CT04` e `CT05`, um por vez, conferindo status e erro coerente. Capture 14 a 17.
 8. Se o Postman exibir falha, anote **o motivo observado**, sem mudar o resultado para sucesso apenas por ser um caso negativo. Uma resposta 400 com erro certo pode ser caso aprovado; falha de autenticação da chave não valida cenário de senha incorreta.
 9. Se desejar, execute a coleção em **Run**, uma iteração, para obter resumo; não substitui a observação individual de cada caso.
-10. Preencha `planilha/Registro_Testes.xlsx` com horários, HTTPs, resultados e observações reais. Capture o print 18.
+10. Preencha `planilha/Registro_Testes.xlsx` com datas, HTTPs, resultados e observações reais; inclua horários somente se registrados. A entrega atual contém datas sem horário exato e a imagem 18 renderizada da planilha preenchida.
 
 ## Etapa C — GitHub e README
 1. Atualize o nome/RA do aluno e a data real no `README.md`.
@@ -51,4 +51,5 @@ Roteiro conferido em 05/11/2026 com a documentação oficial. Os nomes de alguma
 - HTTP 401 por API key/configuração: corrigir `base_url`/`api_key`, não contar como rejeição válida do CT02/03/04/05.
 - Login válido rejeitado: verificar usuário e confirmação de e-mail no Supabase.
 - HTTP 429: interromper as repetições, registrar rate limit e reexecutar após liberar, sem ocultar a dificuldade.
+- Rastreabilidade do CT03 executado: o pré-script gera um e-mail aleatório de formato válido, e a API confirmou a rejeição. As capturas disponíveis não comprovam diretamente a ausência do endereço no cadastro; em uma futura reprodução, registrar essa consulta se for necessária a comprovação cadastral.
 - Erro `email_address_invalid` em CT03: conferir que o e-mail segue sintaxe válida e não existe no projeto; não usar domínios reservados para o cenário de inexistência.

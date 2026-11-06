@@ -2,7 +2,7 @@
   "info": {
     "name": "Supabase — Testes Caixa Cinza de Autenticação",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Cinco cenários independentes e verificações Postman. Projeto-modelo revisado; nenhuma execução real foi feita por esta preparação. Importar no Postman Desktop e usar ambiente local. Não compartilhar senhas, JWTs ou service_role."
+    "description": "Cinco cenários de autenticação executados individualmente no Postman Desktop em 05 e 06/11/2026: CT01 retornou HTTP 200 com quatro asserções aprovadas; CT02–CT05 retornaram HTTP 400 com cinco asserções aprovadas por caso. Total: cinco casos aprovados e 24 asserções aprovadas. Resultados e evidências no README e na planilha. No CT03, a API confirmou a rejeição de um e-mail aleatório de formato válido; sua ausência no cadastro não foi comprovada diretamente pelas evidências disponíveis. Para reproduzir, importar a coleção e preencher o Environment local. Não compartilhar senhas, tokens ou chaves administrativas."
   },
   "auth": {
     "type": "noauth"
@@ -120,7 +120,7 @@
             }
           ]
         },
-        "description": "E-mail cadastrado e senha correta. Esperado: HTTP 200, JSON e access_token não vazio. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+        "description": "E-mail cadastrado e senha correta. Esperado: HTTP 200, JSON e access_token não vazio. Resultado documentado em 05/11/2026: HTTP 200, JSON válido, access_token presente e não vazio; quatro asserções aprovadas (4/4). Evidências: prints/13-ct01-login-valido.png e prints/13-ct01-login-valido-testes.png."
       }
     },
     {
@@ -199,7 +199,7 @@
             }
           ]
         },
-        "description": "E-mail cadastrado e senha deliberadamente diferente. Esperado: Erro de autenticação; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+        "description": "E-mail cadastrado e senha deliberadamente diferente. Esperado: erro de autenticação, sem access_token. Resultado documentado em 06/11/2026: HTTP 400, invalid_credentials, mensagem Invalid login credentials, sem access_token; cinco asserções aprovadas (5/5). Evidências: prints/14-ct02-senha-incorreta.png e prints/14-ct02-senha-incorreta-testes.png."
       }
     },
     {
@@ -278,7 +278,7 @@
             }
           ]
         },
-        "description": "E-mail não cadastrado (e-mail aleatório com sintaxe válida; verificar ausência em Authentication > Users) e senha fictícia. Esperado: Acesso negado; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+        "description": "Cenário de usuário inexistente, com e-mail aleatório de formato válido e senha fictícia. Resultado documentado em 06/11/2026: HTTP 400, invalid_credentials, mensagem Invalid login credentials, sem access_token; cinco asserções aprovadas (5/5). As evidências confirmam a rejeição da autenticação, mas não comprovam diretamente a ausência do endereço em Authentication > Users. A coleção gera o endereço no pré-script; as capturas não registram uma consulta cadastral desse endereço. Evidências: prints/15-ct03-usuario-inexistente.png e prints/15-ct03-usuario-inexistente-testes.png."
       }
     },
     {
@@ -357,7 +357,7 @@
             }
           ]
         },
-        "description": "E-mail e senha como strings vazias. Esperado: Erro de validação; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+        "description": "E-mail e senha como strings vazias. Esperado: erro de validação, sem access_token. Resultado documentado em 06/11/2026: HTTP 400, validation_failed, mensagem missing email or phone, sem access_token; cinco asserções aprovadas (5/5). Evidências: prints/16-ct04-campos-vazios.png e prints/16-ct04-campos-vazios-testes.png."
       }
     },
     {
@@ -436,7 +436,7 @@
             }
           ]
         },
-        "description": "E-mail sem formato válido e senha fictícia. Esperado: Mensagem de erro; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+        "description": "E-mail sem formato válido e senha fictícia. Esperado: mensagem de erro, sem access_token. Resultado documentado em 06/11/2026: HTTP 400, invalid_credentials, mensagem Invalid login credentials, sem access_token; cinco asserções aprovadas (5/5). Evidências: prints/17-ct05-credenciais-invalidas.png e prints/17-ct05-credenciais-invalidas-testes.png."
       }
     }
   ]

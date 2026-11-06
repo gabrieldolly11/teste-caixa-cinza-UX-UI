@@ -79,7 +79,9 @@ A coleção **Supabase — Testes Caixa Cinza de Autenticação** contém cinco 
 
 ![08 — Environment selecionado, valores locais e credenciais mascaradas](prints/08-postman-environment.png)
 
-![09 — Coleção importada com os cinco cenários](prints/09-postman-colecao.png)
+A captura 09 registra a importação na fase de preparação, por isso ainda mostra a descrição anterior aos testes. As descrições do JSON da coleção foram atualizadas após a execução; a captura histórica foi preservada.
+
+![09 — Coleção importada com os cinco cenários, antes da execução](prints/09-postman-colecao.png)
 
 # Configuração das Requisições
 
@@ -96,7 +98,18 @@ O parâmetro `grant_type=password` seleciona o login por senha. Para a chave ano
 
 Quando a variável contém uma chave publishable, o pré-script remove `Authorization`, pois esse tipo de chave não é JWT. O login por senha não exige um token de sessão anterior.
 
-Modelo conceitual do body, em **raw / JSON**:
+Exemplo demonstrativo de header: `apikey: XXXXX` e `Content-Type: application/json`.
+
+Exemplo de body exigido pelo enunciado, com dados fictícios:
+
+```json
+{
+  "email": "usuario@email.com",
+  "password": "123456"
+}
+```
+
+Modelo conceitual com variáveis, em **raw / JSON**:
 
 ```json
 {"email":"{{email}}","password":"{{password}}"}
@@ -120,11 +133,11 @@ Abrir cada caso, clicar em **Send** e conferir o status HTTP, o JSON e a aba **T
 | --- | --- | --- | --- | --- |
 | CT01 — Login válido | E-mail cadastrado e senha correta | HTTP 200 e token não vazio | HTTP 200; JSON válido; `access_token` presente e não vazio; 4/4 asserções | Sucesso |
 | CT02 — Senha incorreta | E-mail cadastrado e senha diferente | Rejeição da autenticação, sem token | HTTP 400; `invalid_credentials`; 5/5 asserções | Sucesso |
-| CT03 — Usuário inexistente | E-mail não cadastrado e senha fictícia | Acesso negado, sem token | HTTP 400; `invalid_credentials`; 5/5 asserções | Sucesso |
+| CT03 — Usuário inexistente | E-mail aleatório de formato válido e senha fictícia | Acesso negado, sem token | HTTP 400; `invalid_credentials`; 5/5 asserções | Sucesso |
 | CT04 — Campos vazios | E-mail e senha vazios | Erro de validação, sem token | HTTP 400; `validation_failed`; 5/5 asserções | Sucesso |
 | CT05 — Credenciais inválidas | E-mail sem formato válido e senha fictícia | Mensagem de erro, sem token | HTTP 400; `invalid_credentials`; 5/5 asserções | Sucesso |
 
-CT02 acrescenta um sufixo à senha correta, garantindo uma entrada diferente. CT03 gera um endereço de formato válido com prefixo `ct03-`, identificador aleatório e domínio `gmail.com`; o endereço não é cadastrado no projeto. CT04 envia strings vazias. CT05 utiliza `email-sem-arroba`.
+CT02 acrescenta um sufixo à senha correta, garantindo uma entrada diferente. CT03 gera um endereço de formato válido com prefixo `ct03-`, identificador aleatório e domínio `gmail.com`. As capturas confirmam a rejeição da autenticação pela API, mas não incluem uma consulta que comprove diretamente a ausência desse endereço em **Authentication > Users**. O erro genérico `invalid_credentials`, isoladamente, não comprova a inexistência do usuário. CT04 envia strings vazias. CT05 utiliza `email-sem-arroba`.
 
 As verificações usam `pm.test()` e `pm.expect()`. CT01 exige HTTP 200, objeto JSON e token presente e não vazio. Nos cenários negativos, as asserções conferem JSON, ausência de `access_token`, informação de erro e correspondência com o cenário. A coleção aceita HTTP 400, 401 ou 422 quando acompanhado do erro esperado. Erros de chave de API, limite de requisições e indisponibilidade do serviço não validam os cenários de credenciais inválidas.
 
@@ -160,6 +173,8 @@ Os cinco registros estão classificados como **Sucesso**. Esse status indica cor
 
 A aba Resumo contabiliza os status das cinco linhas principais, em `F7:F11` da aba Registro de Testes. As datas correspondem aos dias de execução, sem horários não registrados.
 
+O registro associa cada cenário ao resultado e à evidência, permitindo conferir o que foi observado. Por exemplo, CT01 registra HTTP 200 e token não vazio; CT04 registra HTTP 400 com `validation_failed`. Não houve divergência funcional nos resultados registrados. A comprovação cadastral direta do CT03 permanece como limitação da evidência disponível.
+
 A imagem abaixo é uma renderização do arquivo Excel preenchido, utilizada para facilitar a consulta.
 
 ![18 — Planilha preenchida com os cinco resultados reais](prints/18-planilha-preenchida.png)
@@ -176,8 +191,6 @@ A imagem abaixo é uma renderização do arquivo Excel preenchido, utilizada par
 
 O login válido retornou HTTP 200 e token de sessão. Os quatro cenários negativos retornaram HTTP 400, sem `access_token`, com erros coerentes com as entradas. Não houve divergência funcional nos cinco casos avaliados.
 
-A preparação exigiu a instalação e o acesso inicial ao Postman. Na retomada, um novo login carregou os placeholders do Environment, exigindo o preenchimento dos valores locais antes dos testes restantes. Essa ocorrência foi tratada como ajuste do ambiente.
-
 A conferência dos requisitos está em [CHECKLIST.md](docs/CHECKLIST.md), e a relação das capturas está em [EVIDENCIAS.md](docs/EVIDENCIAS.md).
 
 **Entrega:** [repositório público teste-caixa-cinza-UX-UI](https://github.com/gabrieldolly11/teste-caixa-cinza-UX-UI). O pacote reúne 34 arquivos, incluindo 23 imagens. A publicação e o acesso público foram verificados em 06/11/2026.
@@ -188,6 +201,8 @@ A autenticação apresentou o comportamento esperado nos cinco cenários: criaç
 
 O conhecimento do endpoint, dos headers e do formato das respostas orientou a construção e a interpretação dos testes de caixa cinza. A análise conjunta do status HTTP, do erro e do token evita confundir uma rejeição esperada com falha do teste.
 
-Essa conclusão se limita aos cenários executados. Possíveis ampliações incluem e-mail não confirmado, token expirado, revogação de sessão, limite de tentativas e chave de API inválida.
+A preparação exigiu a instalação e o acesso inicial ao Postman. Na retomada, um novo login carregou os placeholders do Environment, exigindo o preenchimento dos valores locais antes dos testes restantes. Essa ocorrência foi tratada como ajuste do ambiente. Não foram identificadas falhas funcionais nas respostas avaliadas.
+
+Essa conclusão se limita aos cenários executados e, no CT03, à rejeição demonstrada pela API, sem comprovação cadastral direta. Possíveis ampliações incluem e-mail não confirmado, token expirado, revogação de sessão, limite de tentativas e chave de API inválida.
 
 Referências: Aula 11 e enunciado da atividade; documentação do Supabase sobre [autenticação por senha](https://supabase.com/docs/guides/auth/passwords), [chaves de API](https://supabase.com/docs/guides/getting-started/api-keys) e [erros de autenticação](https://supabase.com/docs/guides/auth/debugging/error-codes).
