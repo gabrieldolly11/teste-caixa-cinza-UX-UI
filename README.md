@@ -7,7 +7,7 @@ FACENS · UX/UI e Testes de Software · Professor Daniel Ohata
 
 Este guia reúne a configuração do ambiente, os cinco cenários de teste e suas evidências. A metodologia segue o enunciado da atividade e a Aula 11: planejamento, preparação, execução e comparação dos resultados esperados com os observados. A abordagem de caixa cinza utiliza conhecimento do endpoint, dos headers, do corpo JSON e do funcionamento da autenticação.
 
-**Resultado:** cinco casos aprovados e 24 asserções aprovadas. CT01 foi executado em 05/11/2026; CT02–CT05, em 06/11/2026.
+**Resultado:** cinco casos aprovados e 24 asserções aprovadas. CT01 foi executado em 05/11/2026; CT02–CT05, em 11/06/2026.
 
 # Objetivo da Atividade
 
