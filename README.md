@@ -6,7 +6,7 @@ Este trabalho documenta testes funcionais de caixa cinza da autenticação por e
 
 O enunciado define os requisitos. A Aula 11 orienta o planejamento dos cenários, a preparação do ambiente, a execução de chamadas HTTP e o registro de evidências (especialmente páginas 10–14 e 19–31). As etapas de interface FoodExpress e Selenium da aula ficam fora do escopo desta atividade. A planilha foi adaptada aos campos exigidos pelo enunciado, sem testes de aceitação de interface.
 
-**Situação:** os cinco cenários foram executados pessoalmente no Postman Desktop e aprovados, totalizando 24 asserções. CT01 foi executado em 05/11/2026 e CT02–CT05 em 06/11/2026. Ambiente, arquivos e evidências foram preparados e conferidos com assistência técnica autorizada. Publicação autorizada pelo aluno em 06/11/2026 no [repositório público da atividade](https://github.com/gabrieldolly11/teste-caixa-cinza-UX-UI). A conferência da versão publicada será concluída após o envio.
+**Situação:** os cinco cenários foram executados pessoalmente no Postman Desktop e aprovados, totalizando 24 asserções. CT01 foi executado em 05/11/2026 e CT02–CT05 em 06/11/2026. Ambiente, arquivos e evidências foram preparados e conferidos com assistência técnica autorizada. Versão final publicada com autorização do aluno em 06/11/2026 no [repositório público da atividade](https://github.com/gabrieldolly11/teste-caixa-cinza-UX-UI), com acesso sem credenciais confirmado por HTTP 200.
 
 # Objetivo da Atividade
 
@@ -211,7 +211,7 @@ Dificuldades observadas na preparação: foi necessário instalar o Postman Desk
 
 A conferência de requisitos está registrada no [checklist](docs/CHECKLIST.md), e as capturas estão relacionadas em [Evidências](docs/EVIDENCIAS.md). O .gitignore reduz inclusão acidental de ambientes e arquivos privados, mas não identifica segredos dentro de prints, planilhas ou arquivos renomeados. Revisar todo conteúdo e também o histórico Git antes de publicar.
 
-**Link da entrega:** [teste-caixa-cinza-UX-UI](https://github.com/gabrieldolly11/teste-caixa-cinza-UX-UI). Atualização da versão final autorizada pelo aluno em 06/11/2026. Verificação do conteúdo publicado em andamento.
+**Link da entrega:** [teste-caixa-cinza-UX-UI](https://github.com/gabrieldolly11/teste-caixa-cinza-UX-UI). Versão final publicada e acesso público verificado em 06/11/2026. Repositório e README responderam HTTP 200 em requisições sem credenciais. Os 34 arquivos publicados, incluindo as 23 imagens, foram comparados ao pacote local por seus identificadores de conteúdo Git.
 
 # Conclusão
 

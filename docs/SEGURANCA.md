@@ -12,4 +12,4 @@ Revisão local em 06/11/2026, antes da publicação.
 - Resultado: cinco cenários com Sucesso; HTTPs 200, 400, 400, 400 e 400. Resumo calculado: cinco aprovados, zero falhas, zero bloqueados e zero pendentes.
 - O .gitignore protege ambientes locais e arquivos privados comuns, mas não substitui a inspeção dos arquivos e das imagens.
 
-Esta revisão se refere ao pacote local. Acesso público, renderização no GitHub e conteúdo do commit serão conferidos após autorização e publicação. Não há garantia sobre arquivos externos a este pacote ou sobre credenciais que o aluno tenha publicado anteriormente em outros locais.
+Após autorização do aluno, a versão final foi publicada no repositório teste-caixa-cinza-UX-UI. Os 34 arquivos publicados foram comparados ao pacote local por SHA Git; repositório e README responderam HTTP 200 em requisições sem credenciais. O histórico foi preservado e os três arquivos antigos de preparação foram substituídos pelos arquivos revisados, sem manter versões duplicadas na árvore atual. A revisão não abrange arquivos externos a este pacote ou credenciais eventualmente publicadas em outros locais.

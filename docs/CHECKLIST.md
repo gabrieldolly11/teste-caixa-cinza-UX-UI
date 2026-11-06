@@ -22,6 +22,6 @@ Conferência local em 06/11/2026. O aluno autorizou a publicação da versão fi
 | Estrutura e referências relativas | README, postman/, prints/, planilha/ | Concluído | Nenhuma |
 | Revisão dos arquivos e privacidade | docs/SEGURANCA.md | Concluído — pacote local conferido | Conferir novamente o commit publicado |
 | Revisão do aluno antes de publicar | Pacote completo apresentado e autorização no chat | Concluído | Nenhuma |
-| GitHub público e acessível sem login | Link final no README | Em publicação | Conferir versão final após o envio |
+| GitHub público e acessível sem login | Link final no README; HTTP 200 sem credenciais | Concluído — versão final publicada e arquivos conferidos | Nenhuma |
 
 As capturas são reais. O aluno executou os envios; configuração, captura e documentação tiveram assistência técnica autorizada. A imagem 18 foi renderizada do arquivo preenchido, sem simular uma sessão do Excel. Aprovar os cinco casos não demonstra ausência de defeitos fora da cobertura executada.
