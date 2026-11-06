@@ -1,0 +1,443 @@
+{
+  "info": {
+    "name": "Supabase — Testes Caixa Cinza de Autenticação",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Cinco cenários independentes e verificações Postman. Projeto-modelo revisado; nenhuma execução real foi feita por esta preparação. Importar no Postman Desktop e usar ambiente local. Não compartilhar senhas, JWTs ou service_role."
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Executa localmente; não grava nem imprime credenciais.",
+          "const env = pm.environment;",
+          "for (const name of ['base_url', 'api_key', 'email', 'password']) {",
+          "  const value = env.get(name);",
+          "  if (typeof value !== 'string' || !value.trim() || /SUBSTITUIR|PLACEHOLDER/.test(value)) {",
+          "    pm.execution.skipRequest();",
+          "    throw new Error('Configure a variável local: ' + name);",
+          "  }",
+          "}",
+          "const base = env.get('base_url').replace(/\\/+$/, '');",
+          "if (!/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(base)) {",
+          "  pm.execution.skipRequest(); throw new Error('Use a Project URL HTTPS do Supabase, sem caminho.');",
+          "}",
+          "pm.variables.set('base_url', base);",
+          "const key = env.get('api_key');",
+          "if (key.startsWith('sb_secret_')) { pm.execution.skipRequest(); throw new Error('Não use chave secret. Use somente publishable ou anon legada.'); } else if (key.startsWith('sb_publishable_')) {",
+          "  pm.request.headers.remove('Authorization');",
+          "} else {",
+          "  let role = '';",
+          "  try { role = JSON.parse(atob(key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).role; } catch (_) {}",
+          "  if (role !== 'anon') {",
+          "    pm.execution.skipRequest(); throw new Error('Use somente publishable ou JWT legado anon.');",
+          "  }",
+          "  pm.request.headers.upsert({key:'Authorization', value:'Bearer ' + key});",
+          "}",
+          "// Serialização segura inclusive quando a senha contém aspas ou barras.",
+          "pm.variables.set('auth_email_json', JSON.stringify(env.get('email')));",
+          "pm.variables.set('auth_password_json', JSON.stringify(env.get('password')));",
+          "if (pm.info.requestName.startsWith('CT02')) {",
+          "  pm.variables.set('wrong_password_json', JSON.stringify(env.get('password') + '__incorreta_CT02__'));",
+          "}",
+          "if (pm.info.requestName.startsWith('CT03')) {",
+          "  // Endereço sintaticamente válido e aleatório; conferir que não existe no projeto Auth > Users.",
+          "  const absent = 'ct03-' + pm.variables.replaceIn('{{$guid}}') + '@gmail.com';",
+          "  pm.variables.set('absent_email_json', JSON.stringify(absent));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "CT01 — Login válido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let data;",
+              "pm.test('Resposta JSON válida e objeto', function () {",
+              "  data = pm.response.json();",
+              "  pm.expect(data !== null && typeof data === 'object' && !Array.isArray(data)).to.equal(true);",
+              "});",
+              "pm.test('HTTP 200', () => pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('Campo access_token presente', () => pm.expect(Object.prototype.hasOwnProperty.call(data || {}, 'access_token')).to.equal(true));",
+              "pm.test('Access token não vazio', function () {",
+              "  // Testa apenas o booleano para não exibir o token em falhas de asserção.",
+              "  pm.expect(typeof data?.access_token === 'string' && data.access_token.trim().length > 0).to.equal(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "O pré-script remove este header para publishable e mantém para anon."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": {{auth_email_json}},\n  \"password\": {{auth_password_json}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail cadastrado e senha correta. Esperado: HTTP 200, JSON e access_token não vazio. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+      }
+    },
+    {
+      "name": "CT02 — Senha incorreta",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let data;",
+              "pm.test('Resposta JSON válida e objeto', function () {",
+              "  data = pm.response.json();",
+              "  pm.expect(data !== null && typeof data === 'object' && !Array.isArray(data)).to.equal(true);",
+              "});",
+              "const allowedCodes = [\"invalid_credentials\"];",
+              "pm.test('Erro HTTP de entrada/autenticação (400, 401 ou 422)', function () {",
+              "  pm.expect([400, 401, 422].includes(pm.response.code)).to.equal(true);",
+              "});",
+              "pm.test('Sem access_token', function () {",
+              "  pm.expect(Object.prototype.hasOwnProperty.call(data || {}, 'access_token')).to.equal(false);",
+              "});",
+              "pm.test('Mensagem ou código de erro presente', function () {",
+              "  pm.expect(['error_code','code','error','error_description','msg','message'].some(k => typeof data?.[k] === 'string' && data[k].trim().length > 0)).to.equal(true);",
+              "});",
+              "pm.test('Erro corresponde ao cenário, não a falha de infraestrutura', function () {",
+              "  const code = data?.error_code || data?.code;",
+              "  const message = [data?.error_description, data?.msg, data?.message].filter(v => typeof v === 'string').join(' ').toLowerCase();",
+              "  const legacyMatches = /invalid login credentials/.test(message);",
+              "  pm.expect(typeof code === 'string' ? allowedCodes.includes(code) : legacyMatches).to.equal(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "O pré-script remove este header para publishable e mantém para anon."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": {{auth_email_json}},\n  \"password\": {{wrong_password_json}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail cadastrado e senha deliberadamente diferente. Esperado: Erro de autenticação; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+      }
+    },
+    {
+      "name": "CT03 — Usuário inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let data;",
+              "pm.test('Resposta JSON válida e objeto', function () {",
+              "  data = pm.response.json();",
+              "  pm.expect(data !== null && typeof data === 'object' && !Array.isArray(data)).to.equal(true);",
+              "});",
+              "const allowedCodes = [\"invalid_credentials\"];",
+              "pm.test('Erro HTTP de entrada/autenticação (400, 401 ou 422)', function () {",
+              "  pm.expect([400, 401, 422].includes(pm.response.code)).to.equal(true);",
+              "});",
+              "pm.test('Sem access_token', function () {",
+              "  pm.expect(Object.prototype.hasOwnProperty.call(data || {}, 'access_token')).to.equal(false);",
+              "});",
+              "pm.test('Mensagem ou código de erro presente', function () {",
+              "  pm.expect(['error_code','code','error','error_description','msg','message'].some(k => typeof data?.[k] === 'string' && data[k].trim().length > 0)).to.equal(true);",
+              "});",
+              "pm.test('Erro corresponde ao cenário, não a falha de infraestrutura', function () {",
+              "  const code = data?.error_code || data?.code;",
+              "  const message = [data?.error_description, data?.msg, data?.message].filter(v => typeof v === 'string').join(' ').toLowerCase();",
+              "  const legacyMatches = /invalid login credentials/.test(message);",
+              "  pm.expect(typeof code === 'string' ? allowedCodes.includes(code) : legacyMatches).to.equal(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "O pré-script remove este header para publishable e mantém para anon."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": {{absent_email_json}},\n  \"password\": \"SENHA_FICTICIA_CT03\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail não cadastrado (e-mail aleatório com sintaxe válida; verificar ausência em Authentication > Users) e senha fictícia. Esperado: Acesso negado; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+      }
+    },
+    {
+      "name": "CT04 — Campos vazios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let data;",
+              "pm.test('Resposta JSON válida e objeto', function () {",
+              "  data = pm.response.json();",
+              "  pm.expect(data !== null && typeof data === 'object' && !Array.isArray(data)).to.equal(true);",
+              "});",
+              "const allowedCodes = [\"validation_failed\", \"email_address_not_provided\"];",
+              "pm.test('Erro HTTP de entrada/autenticação (400, 401 ou 422)', function () {",
+              "  pm.expect([400, 401, 422].includes(pm.response.code)).to.equal(true);",
+              "});",
+              "pm.test('Sem access_token', function () {",
+              "  pm.expect(Object.prototype.hasOwnProperty.call(data || {}, 'access_token')).to.equal(false);",
+              "});",
+              "pm.test('Mensagem ou código de erro presente', function () {",
+              "  pm.expect(['error_code','code','error','error_description','msg','message'].some(k => typeof data?.[k] === 'string' && data[k].trim().length > 0)).to.equal(true);",
+              "});",
+              "pm.test('Erro corresponde ao cenário, não a falha de infraestrutura', function () {",
+              "  const code = data?.error_code || data?.code;",
+              "  const message = [data?.error_description, data?.msg, data?.message].filter(v => typeof v === 'string').join(' ').toLowerCase();",
+              "  const legacyMatches = /missing email or phone|email.*required|provide.*email|email.*missing/.test(message);",
+              "  pm.expect(typeof code === 'string' ? allowedCodes.includes(code) : legacyMatches).to.equal(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "O pré-script remove este header para publishable e mantém para anon."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail e senha como strings vazias. Esperado: Erro de validação; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+      }
+    },
+    {
+      "name": "CT05 — Credenciais inválidas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let data;",
+              "pm.test('Resposta JSON válida e objeto', function () {",
+              "  data = pm.response.json();",
+              "  pm.expect(data !== null && typeof data === 'object' && !Array.isArray(data)).to.equal(true);",
+              "});",
+              "const allowedCodes = [\"invalid_credentials\",\"validation_failed\",\"email_address_invalid\", \"email_address_not_provided\"];",
+              "pm.test('Erro HTTP de entrada/autenticação (400, 401 ou 422)', function () {",
+              "  pm.expect([400, 401, 422].includes(pm.response.code)).to.equal(true);",
+              "});",
+              "pm.test('Sem access_token', function () {",
+              "  pm.expect(Object.prototype.hasOwnProperty.call(data || {}, 'access_token')).to.equal(false);",
+              "});",
+              "pm.test('Mensagem ou código de erro presente', function () {",
+              "  pm.expect(['error_code','code','error','error_description','msg','message'].some(k => typeof data?.[k] === 'string' && data[k].trim().length > 0)).to.equal(true);",
+              "});",
+              "pm.test('Erro corresponde ao cenário, não a falha de infraestrutura', function () {",
+              "  const code = data?.error_code || data?.code;",
+              "  const message = [data?.error_description, data?.msg, data?.message].filter(v => typeof v === 'string').join(' ').toLowerCase();",
+              "  const legacyMatches = /invalid login credentials|invalid.*email|email.*invalid/.test(message);",
+              "  pm.expect(typeof code === 'string' ? allowedCodes.includes(code) : legacyMatches).to.equal(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{api_key}}"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{api_key}}",
+            "description": "O pré-script remove este header para publishable e mantém para anon."
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"email-sem-arroba\",\n  \"password\": \"SENHA_FICTICIA_CT05\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "v1",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "grant_type",
+              "value": "password"
+            }
+          ]
+        },
+        "description": "E-mail sem formato válido e senha fictícia. Esperado: Mensagem de erro; sem access_token. Não contém resultados observados. Teste ainda não executado neste material. Realize no Postman Desktop, registre o HTTP e anexe prints reais."
+      }
+    }
+  ]
+}
