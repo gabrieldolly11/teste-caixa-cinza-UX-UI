@@ -2,7 +2,7 @@
 
 Projeto individual de testes funcionais de caixa cinza da autenticação por e-mail e senha do Supabase, com requisições no Postman Desktop e registro dos resultados em planilha.
 
-**Gabriel Henrique Fernandes Torres — RA 251157**  
+**Gabriel Henrique Fernandes Torres**  
 FACENS · UX/UI e Testes de Software · Professor Daniel Ohata
 
 Este guia reúne a configuração do ambiente, os cinco cenários de teste e suas evidências. A metodologia segue o enunciado da atividade e a Aula 11: planejamento, preparação, execução e comparação dos resultados esperados com os observados. A abordagem de caixa cinza utiliza conhecimento do endpoint, dos headers, do corpo JSON e do funcionamento da autenticação.
